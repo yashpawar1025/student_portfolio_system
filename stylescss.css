@@ -1,0 +1,30 @@
+.dashboard-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.stat-item {
+  margin-bottom: 2rem;
+}
+
+.progress-bar {
+  width: 80%;
+  background-color: #e0e0e0;
+  border-radius: 25px;
+  height: 30px;
+  margin: 0 auto;
+}
+
+.progress {
+  height: 100%;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+  background-color: #4caf50;
+  border-radius: 25px;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
