@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | SPMF</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Extra Dashboard Styles */
+    .dashboard-container {
+      padding: 2rem;
+      text-align: center;
+    }
+    .welcome {
+      margin-bottom: 2rem;
+    }
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      font-size: 2rem;
+      margin: 0.5rem 0;
+    }
+    .progress-section {
+      margin-bottom: 3rem;
+    }
+    .progress-bar {
+      width: 80%;
+      background: #eee;
+      height: 20px;
+      border-radius: 20px;
+      margin: 0.5rem auto;
+      overflow: hidden;
+    }
+    .progress {
+      height: 100%;
+      background: #4caf50;
+      text-align: center;
+      color: white;
+      font-size: 0.8rem;
+      line-height: 20px;
+    }
+    .recent-activity {
+      margin-bottom: 3rem;
+    }
+    .actions {
+      margin-bottom: 3rem;
+    }
+    .actions button {
+      background: #667eea;
+      color: white;
+      margin: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .actions button:hover {
+      background: #556cd6;
+    }
+    .quote {
+      font-style: italic;
+      color: #555;
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <h1>SPMF</h1>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="certificate.html">Certificates</a></li>
+        <li><a href="public_profile.html">Public Profile</a></li>
+        <li><a href="student_dashboard.html">Dashboard</a></li>
+        <li><a href="#" onclick="logoutUser()" class="btn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Dashboard Main -->
+  <div class="dashboard-container">
+
+    <div class="welcome">
+      <h2>Hello, <span id="studentName">Student</span> 👋</h2>
+      <p>Manage your growth, track achievements, and showcase your skills!</p>
+    </div>
+
+    <div class="summary-cards">
+      <div class="card">
+        <h3>Certificates</h3>
+        <h2 id="totalCertificates">0</h2>
+      </div>
+      <div class="card">
+        <h3>Projects</h3>
+        <h2 id="totalProjects">0</h2>
+      </div>
+      <div class="card">
+        <h3>Skills</h3>
+        <h2 id="totalSkills">0</h2>
+      </div>
+      <div class="card">
+        <h3>Work Experience</h3>
+        <h2 id="totalExperience">0</h2>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <h3>Skill Progress</h3>
+      <p>HTML</p>
+      <div class="progress-bar"><div class="progress" id="htmlProgress" style="width: 70%;">70%</div></div>
+      <p>CSS</p>
+      <div class="progress-bar"><div class="progress" id="cssProgress" style="width: 60%;">60%</div></div>
+      <p>JavaScript</p>
+      <div class="progress-bar"><div class="progress" id="jsProgress" style="width: 50%;">50%</div></div>
+    </div>
+
+    <div class="recent-activity">
+      <h3>Recent Activities</h3>
+      <ul id="activityList">
+        <li>Welcome to your Dashboard!</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button onclick="location.href='portfolio.html'">Add Project</button>
+      <button onclick="location.href='certificate.html'">Upload Certificate</button>
+      <button onclick="location.href='public_profile.html'">Update Skills</button>
+      <button onclick="location.href='public_profile.html'">Edit Profile</button>
+    </div>
+
+    <div class="quote">
+      "Success is the sum of small efforts, repeated day in and day out." 🎯
+    </div>
+
+  </div>
+
+  <script>
+    function loadDashboard() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+    
+      document.getElementById('studentName').textContent = user.name;
+    
+      const certificates = JSON.parse(localStorage.getItem('certificates_' + user.email)) || [];
+      const projects = JSON.parse(localStorage.getItem('projects_' + user.email)) || [];
+      const skills = JSON.parse(localStorage.getItem('skills_' + user.email)) || [];
+      const experiences = JSON.parse(localStorage.getItem('experiences_' + user.email)) || [];
+    
+      document.getElementById('totalCertificates').textContent = certificates.length;
+      document.getElementById('totalProjects').textContent = projects.length;
+      document.getElementById('totalSkills').textContent = skills.length;
+      document.getElementById('totalExperience').textContent = experiences.length;
+    
+      const activityList = document.getElementById('activityList');
+      activityList.innerHTML = '';
+    
+      if (certificates.length > 0) activityList.innerHTML += `<li>Uploaded certificate: "${certificates[certificates.length-1].title}"</li>`;
+      if (projects.length > 0) activityList.innerHTML += `<li>Added project: "${projects[projects.length-1].title}"</li>`;
+      if (skills.length > 0) activityList.innerHTML += `<li>Updated skills: ${skills.join(', ')}</li>`;
+    
+      const ctx1 = document.getElementById('skillsChart').getContext('2d');
+      new Chart(ctx1, {
+        type: 'pie',
+        data: {
+          labels: skills.length ? skills : ['No Skills Added'],
+          datasets: [{
+            data: skills.map(() => 1),
+            backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#f44336']
+          }]
+        }
+      });
+    
+      const ctx2 = document.getElementById('achievementsChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Certificates', 'Projects', 'Experience'],
+          datasets: [{
+            data: [certificates.length, projects.length, experiences.length],
+            backgroundColor: ['#3f51b5', '#4caf50', '#ff5722']
+          }]
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+    
+    window.onload = loadDashboard;
+    </script>
+    
+
+</body>
+</html>

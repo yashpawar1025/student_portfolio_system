@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Profile | SPMF</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+    }
+    .profile-header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      border-radius: 0 0 20px 20px;
+      position: relative;
+    }
+    .profile-header img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid white;
+      object-fit: cover;
+    }
+    .edit-btn {
+      background: #ff7f50;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      margin: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .profile-section {
+      background: white;
+      margin: 2rem;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .tags, .certificates, .projects {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .tag {
+      background: #e0e0e0;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      color: white;
+      font-weight: bold;
+    }
+    .blue { background: #2196f3; }
+    .green { background: #4caf50; }
+    .orange { background: #ff9800; }
+    .purple { background: #9c27b0; }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    input, textarea {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .save-btn {
+      background: #4caf50;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container">
+    <h1>SPMF</h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="portfolio.html">Portfolio</a></li>
+      <li><a href="certificate.html">Certificates</a></li>
+      <li><a href="student_dashboard.html">Dashboard</a></li>
+      <li><a href="#" onclick="logoutUser()" class="btn">Logout</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Profile Header -->
+<section class="profile-header">
+  <input type="file" id="uploadPic" style="display:none" accept="image/*">
+  <img src="https://via.placeholder.com/120" id="profilePic" alt="Profile Picture">
+  <br>
+  <button class="edit-btn" onclick="document.getElementById('uploadPic').click()">Change Picture</button>
+  <h2 id="profileName">Student Name</h2>
+  <p id="profileBranch">Branch | College</p>
+  <p id="profileEmail">email@example.com</p>
+  <button class="edit-btn" onclick="openEdit('profile')">Edit Info</button>
+</section>
+
+<!-- About Me -->
+<section class="profile-section">
+  <h3>About Me</h3>
+  <p id="aboutMe">Write about yourself...</p>
+  <button class="edit-btn" onclick="openEdit('about')">Edit About</button>
+</section>
+
+<!-- Skills -->
+<section class="profile-section">
+  <h3>Skills</h3>
+  <div class="tags" id="skillsList"></div>
+  <button class="edit-btn" onclick="openEdit('skills')">Edit Skills</button>
+</section>
+
+<!-- Certificates -->
+<section class="profile-section">
+  <h3>Certificates</h3>
+  <div class="certificates" id="certList"></div>
+  <button class="edit-btn" onclick="openEdit('certificates')">Edit Certificates</button>
+</section>
+
+<!-- Projects -->
+<section class="profile-section">
+  <h3>Projects</h3>
+  <div class="projects" id="projectsList"></div>
+  <button class="edit-btn" onclick="openEdit('projects')">Edit Projects</button>
+</section>
+
+<!-- Modal -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h3 id="modalTitle"></h3>
+    <form id="editForm"></form>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  function loadProfile() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+  
+    document.getElementById('profileName').textContent = user.name || 'Student Name';
+    document.getElementById('profileBranch').textContent = (user.branch || 'Branch') + ' | ' + (user.college || 'College');
+    document.getElementById('profileEmail').textContent = user.email || 'email@example.com';
+    document.getElementById('aboutMe').textContent = user.aboutMe || 'Write something about yourself.';
+  
+    const skills = JSON.parse(localStorage.getItem('skills_' + user.email)) || [];
+    const certificates = JSON.parse(localStorage.getItem('certificates_' + user.email)) || [];
+    const projects = JSON.parse(localStorage.getItem('projects_' + user.email)) || [];
+  
+    const skillsList = document.getElementById('skillsList');
+    skillsList.innerHTML = '';
+    skills.forEach(skill => {
+      skillsList.innerHTML += `<span class="tag">${skill}</span>`;
+    });
+  
+    const certList = document.getElementById('certList');
+    certList.innerHTML = '';
+    certificates.forEach(cert => {
+      certList.innerHTML += `<span class="tag"><a href="${cert.link || '#'}" target="_blank">${cert.title}</a></span>`;
+    });
+  
+    const projectsList = document.getElementById('projectsList');
+    projectsList.innerHTML = '';
+    projects.forEach(proj => {
+      projectsList.innerHTML += `<span class="tag">${proj.title}</span>`;
+    });
+  
+    if (user.profilePic) {
+      document.getElementById('profilePic').src = user.profilePic;
+    }
+  }
+  
+  document.getElementById('uploadPic').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const user = JSON.parse(localStorage.getItem('user'));
+        user.profilePic = e.target.result;
+        localStorage.setItem('user', JSON.stringify(user));
+        document.getElementById('profilePic').src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  window.onload = loadProfile;
+  </script>
+  
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio | SPMF</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .portfolio-container {
+      padding: 2rem;
+      text-align: center;
+    }
+    .add-project-btn {
+      background: #667eea;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      cursor: pointer;
+    }
+    .add-project-btn:hover {
+      background: #556cd6;
+    }
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .project-card:hover {
+      transform: scale(1.02);
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #555;
+    }
+    input, textarea {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .btn {
+      background: #4caf50;
+      color: white;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #388e3c;
+    }
+    
+  </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container">
+    <h1>SPMF</h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="portfolio.html">Portfolio</a></li>
+      <li><a href="certificate.html">Certificates</a></li>
+      <li><a href="public_profile.html">Public Profile</a></li>
+      <li><a href="student_dashboard.html">Dashboard</a></li>
+      <li><a href="#" onclick="logoutUser()" class="btn">Logout</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Portfolio Section -->
+<section class="portfolio-container">
+  <h2>My Projects & Work</h2>
+  <p>Here are some of the projects I've worked on during my learning journey.</p>
+
+  <!-- Add Project Button -->
+<button class="btn-primary" onclick="openProjectModal()">➕ Add New Project</button>
+
+<!-- Modal to Add Project -->
+<div id="projectModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeProjectModal()">&times;</span>
+    <h3>Add New Project</h3>
+    <form id="projectForm">
+      <input type="text" id="projectTitle" placeholder="Project Title" required>
+<input type="text" id="projectDesc" placeholder="Project Description" required>
+<input type="text" id="projectTech" placeholder="Technologies Used (comma separated)" required>
+<input type="text" id="projectDuration" placeholder="Duration (e.g., 2 months)" required>
+<input type="url" id="projectLink" placeholder="Project URL (optional)">
+<input type="file" id="projectPDF" accept="application/pdf">
+<button type="submit" class="btn-primary">Save Project</button>
+
+      <div id="projectList" class="project-grid"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function loadProjects() {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const projectList = document.getElementById('projectList');
+  const projects = JSON.parse(localStorage.getItem('projects_' + user.email)) || [];
+
+  projectList.innerHTML = '';
+  projects.forEach(proj => {
+    projectList.innerHTML += `
+      <div class="feature">
+        <h4>${proj.title}</h4>
+        <p>${proj.desc}</p>
+        <p><b>Technologies:</b> ${proj.tech}</p>
+        <p><b>Duration:</b> ${proj.duration}</p>
+        ${proj.link ? `<p><a href="${proj.link}" target="_blank">🌐 View Project</a></p>` : ''}
+        ${proj.pdfUrl ? `<a href="${proj.pdfUrl}" target="_blank" class="btn-primary" style="margin-top:10px;">📄 View PDF</a>` : ''}
+      </div>`;
+  });
+}
+
+  
+  function openProjectModal() {
+    document.getElementById('projectModal').style.display = 'flex';
+  }
+  
+  function closeProjectModal() {
+    document.getElementById('projectModal').style.display = 'none';
+  }
+  
+  document.getElementById('projectForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user) {
+    alert('User not logged in!');
+    return;
+  }
+
+  const title = document.getElementById('projectTitle').value;
+  const desc = document.getElementById('projectDesc').value;
+  const tech = document.getElementById('projectTech').value;
+  const duration = document.getElementById('projectDuration').value;
+  const link = document.getElementById('projectLink').value;
+  const fileInput = document.getElementById('projectPDF');
+  const file = fileInput.files[0];
+
+  if (file) {
+    if (file.type !== 'application/pdf') {
+      alert('Please upload only PDF files!');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const pdfUrl = e.target.result;
+      saveProject(user.email, title, desc, tech, duration, link, pdfUrl);
+    }
+    reader.readAsDataURL(file);
+  } else {
+    saveProject(user.email, title, desc, tech, duration, link, '');
+  }
+});
+
+function saveProject(email, title, desc, tech, duration, link, pdfUrl) {
+  const projectsKey = 'projects_' + email;
+  const projects = JSON.parse(localStorage.getItem(projectsKey)) || [];
+
+  projects.push({ title, desc, tech, duration, link, pdfUrl });
+
+  localStorage.setItem(projectsKey, JSON.stringify(projects));
+
+  document.getElementById('projectForm').reset();
+  closeProjectModal();
+  loadProjects();
+}
+
+  </script>
+  
+  
+  
+
+</body>
+</html>

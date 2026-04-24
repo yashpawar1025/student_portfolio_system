@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logout | SPMF</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <h1>SPMF</h1>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="certificate.html">Certificate</a></li>
+        <li><a href="student_dashboard.html">Dashboard</a></li>
+        <li><a href="public_profile.html">Public Profile</a></li>
+        <li><a href="#" class="btn" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="form-section">
+    <div class="container form-container">
+      <h2>Are you sure you want to logout?</h2>
+      <button class="btn" onclick="logoutUser()">Confirm Logout</button>
+    </div>
+  </section>
+
+  <script>
+    function logoutUser() {
+      const confirmLogout = confirm("Do you really want to logout?");
+      if (confirmLogout) {
+        // Clear only login credentials
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPassword');
+
+        // Optional: Clear everything
+        // localStorage.clear();
+
+        alert("Logout successful!");
+        window.location.href = "login.html";
+      }
+    }
+  </script>
+</body>
+</html>
