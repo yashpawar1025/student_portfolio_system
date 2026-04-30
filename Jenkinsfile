@@ -2,26 +2,20 @@ pipeline {
     agent any
 
     stages {
-        stage('Deploy') {
+        stage('Deploy to XAMPP') {
             steps {
-                echo '🚀 Deploying to XAMPP...'
+                echo '🚀 Deploying to XAMPP htdocs...'
 
                 bat '''
-                echo Stopping Apache...
-                taskkill /f /im httpd.exe 2>nul
+                echo Creating project folder if not exists...
+                if not exist C:\\xampp\\htdocs\\student_portfolio_system (
+                    mkdir C:\\xampp\\htdocs\\student_portfolio_system
+                )
 
-                timeout /t 2
-
-                echo Removing old files...
-                rmdir /s /q C:\\xampp\\htdocs\\student_portfolio_system 2>nul
-
-                echo Copying new files...
+                echo Copying latest files from Jenkins workspace...
                 xcopy /E /I /Y %WORKSPACE%\\* C:\\xampp\\htdocs\\student_portfolio_system
 
-                echo Starting Apache...
-                start "" "C:\\xampp\\apache\\bin\\httpd.exe"
-
-                echo Deployment completed!
+                echo Deployment Done!
                 '''
             }
         }
