@@ -4,23 +4,23 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying to local server...'
+                echo '🚀 Deploying to XAMPP...'
 
                 bat '''
-                echo Closing any process using folder...
-                
+                echo Stopping Apache...
                 taskkill /f /im httpd.exe 2>nul
-                taskkill /f /im chrome.exe 2>nul
-                
+
                 timeout /t 2
-                
-                if exist C:\\jenkins-deploy (
-                    rmdir /s /q C:\\jenkins-deploy || echo Folder in use, retrying...
-                )
-                
-                mkdir C:\\jenkins-deploy
-                xcopy /E /I /Y * C:\\jenkins-deploy
-                
+
+                echo Removing old files...
+                rmdir /s /q C:\\xampp\\htdocs\\student_portfolio_system 2>nul
+
+                echo Copying new files...
+                xcopy /E /I /Y %WORKSPACE%\\* C:\\xampp\\htdocs\\student_portfolio_system
+
+                echo Starting Apache...
+                start "" "C:\\xampp\\apache\\bin\\httpd.exe"
+
                 echo Deployment completed!
                 '''
             }
